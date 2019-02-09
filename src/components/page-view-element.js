@@ -8,17 +8,27 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { LitElement } from 'lit-element';
+import { compose, element, renderer } from 'swiss-element';
+import { render } from 'lit-html';
 
-export class PageViewElement extends LitElement {
-  // Only render this page if it's actually visible.
-  shouldUpdate() {
-    return this.active;
-  }
+export function pageViewElement(name, component) {
+  const enhance = compose(
+    createElement => {
+      return options => {
+        const el = createElement(options);
+        const shouldUpdate = el.shouldUpdate;
+        el.shouldUpdate = (name, oldValue, newValue) => {
+          const isActive = name === 'active' && newValue === '';
+          return isActive ? shouldUpdate(options) : false;
+        };
+        return el;
+      };
+    },
+    renderer(render)
+  );
 
-  static get properties() {
-    return {
-      active: { type: Boolean }
-    }
-  }
+  return element(name, component, enhance, {
+    observedAttributes: ['active'],
+    shadow: 'open'
+  });
 }

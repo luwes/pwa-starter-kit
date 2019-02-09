@@ -8,15 +8,15 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { html, css } from 'lit-element';
-import { PageViewElement } from './page-view-element.js';
-import { connect } from 'pwa-helpers/connect-mixin.js';
+import { html } from 'lit-html';
+import { useActions, useSelector } from 'swiss-redux';
+import { pageViewElement } from './page-view-element.js';
 
 // This element is connected to the Redux store.
 import { store } from '../store.js';
 
 // These are the actions needed by this element.
-import { checkout } from '../actions/shop.js';
+import * as actions from '../actions/shop.js';
 
 // We are lazy loading its reducer.
 import shop, { cartQuantitySelector } from '../reducers/shop.js';
@@ -32,68 +32,51 @@ import './shop-cart.js';
 import { SharedStyles } from './shared-styles.js';
 import { ButtonSharedStyles } from './button-shared-styles.js';
 
-class MyView3 extends connect(store)(PageViewElement) {
-  static get properties() {
-    return {
-      // This is the data from the store.
-      _quantity: { type: Number },
-      _error: { type: String }
-    };
-  }
+function MyView3() {
+  const error = useSelector(state => state.shop.error);
+  const quantity = useSelector(cartQuantitySelector);
+  const { checkout } = useActions(actions);
 
-  static get styles() {
-    return [
-      SharedStyles,
-      ButtonSharedStyles,
-      css`
-        button {
-          border: 2px solid black;
-          border-radius: 3px;
-          padding: 8px 16px;
-        }
-      `
-    ];
-  }
+  return html`
+    <style>
+      ${SharedStyles} ${ButtonSharedStyles} button {
+        border: 2px solid black;
+        border-radius: 3px;
+        padding: 8px 16px;
+      }
+    </style>
 
-  render() {
-    return html`
-      <section>
-        <h2>Redux example: shopping cart</h2>
-        <p>Number of items in the cart: <b>${this._quantity}</b></p>
+    <section>
+      <h2>Redux example: shopping cart</h2>
+      <p>Number of items in the cart: <b>${quantity}</b></p>
 
-        <p>This is a slightly more advanced Redux example, that simulates a
-          shopping cart: getting the products, adding/removing items to the
-          cart, and a checkout action, that can sometimes randomly fail (to
-          simulate where you would add failure handling). </p>
-        <p>This view, as well as its 2 child elements, <code>&lt;shop-products&gt;</code> and
-        <code>&lt;shop-cart&gt;</code> are connected to the Redux store.</p>
-      </section>
-      <section>
-        <h3>Products</h3>
-        <shop-products></shop-products>
+      <p>
+        This is a slightly more advanced Redux example, that simulates a
+        shopping cart: getting the products, adding/removing items to the cart,
+        and a checkout action, that can sometimes randomly fail (to simulate
+        where you would add failure handling).
+      </p>
+      <p>
+        This view, as well as its 2 child elements,
+        <code>&lt;shop-products&gt;</code> and
+        <code>&lt;shop-cart&gt;</code> are connected to the Redux store.
+      </p>
+    </section>
+    <section>
+      <h3>Products</h3>
+      <shop-products></shop-products>
 
-        <h3>Your Cart</h3>
-        <shop-cart></shop-cart>
+      <h3>Your Cart</h3>
+      <shop-cart></shop-cart>
 
-        <div>${this._error}</div>
-        <p>
-          <button ?hidden="${this._quantity == 0}" @click="${this._checkoutButtonClicked}">
-            Checkout
-          </button>
-        </p>
-      </section>
-    `;
-  }
-
-  _checkoutButtonClicked() {
-    store.dispatch(checkout());
-  }
-
-  // This is called every time something is updated in the store.
-  stateChanged(state) {
-    this._quantity = cartQuantitySelector(state);
-    this._error = state.shop.error;
-  }
+      <div>${error}</div>
+      <p>
+        <button ?hidden="${quantity == 0}" @click="${checkout}">
+          Checkout
+        </button>
+      </p>
+    </section>
+  `;
 }
 
-window.customElements.define('my-view3', MyView3);
+pageViewElement('my-view3', MyView3);

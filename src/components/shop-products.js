@@ -8,17 +8,17 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { LitElement, html, css } from 'lit-element';
-import { connect } from 'pwa-helpers/connect-mixin.js';
+import { element, renderer, useEffect } from 'swiss-element';
+import { useActions, useSelector } from 'swiss-redux';
+import { html, render } from 'lit-html';
 
 // This element is connected to the Redux store.
-import { store } from '../store.js';
 
 // These are the elements needed by this element.
 import './shop-item.js';
 
 // These are the actions needed by this element.
-import { getAllProducts, addToCart } from '../actions/shop.js';
+import * as actions from '../actions/shop.js';
 
 // These are the elements needed by this element.
 import { addToCartIcon } from './my-icons.js';
@@ -26,56 +26,45 @@ import { addToCartIcon } from './my-icons.js';
 // These are the shared styles needed by this element.
 import { ButtonSharedStyles } from './button-shared-styles.js';
 
-class ShopProducts extends connect(store)(LitElement) {
-  static get properties() {
-    return {
-      _products: { type: Object }
-    };
-  }
+function ShopProducts() {
+  const products = useSelector(state => state.shop.products);
+  const { getAllProducts, addToCart } = useActions(actions);
 
-  static get styles() {
-    return [
-      ButtonSharedStyles,
-      css`
-        :host {
-          display: block;
-        }
-      `
-    ];
-  }
+  const addButtonClicked = e => {
+    addToCart(e.currentTarget.dataset['index']);
+  };
 
-  render() {
-    return html`
-      ${Object.keys(this._products).map((key) => {
-        const item = this._products[key];
-        return html`
-          <div>
-            <shop-item name="${item.title}" amount="${item.inventory}" price="${item.price}"></shop-item>
-            <button
-                .disabled="${item.inventory === 0}"
-                @click="${this._addButtonClicked}"
-                data-index="${item.id}"
-                title="${item.inventory === 0 ? 'Sold out' : 'Add to cart' }">
-              ${item.inventory === 0 ? 'Sold out': addToCartIcon }
-            </button>
-          </div>
-        `;
-      })}
-    `;
-  }
+  useEffect(getAllProducts);
 
-  firstUpdated() {
-    store.dispatch(getAllProducts());
-  }
-
-  _addButtonClicked(e) {
-    store.dispatch(addToCart(e.currentTarget.dataset['index']));
-  }
-
-  // This is called every time something is updated in the store.
-  stateChanged(state) {
-    this._products = state.shop.products;
-  }
+  return html`
+    <style>
+      ${ButtonSharedStyles} :host {
+        display: block;
+      }
+    </style>
+    ${Object.keys(products).map(key => {
+      const item = products[key];
+      return html`
+        <div>
+          <shop-item
+            name="${item.title}"
+            amount="${item.inventory}"
+            price="${item.price}"
+          ></shop-item>
+          <button
+            .disabled="${item.inventory === 0}"
+            @click="${addButtonClicked}"
+            data-index="${item.id}"
+            title="${item.inventory === 0 ? 'Sold out' : 'Add to cart'}"
+          >
+            ${item.inventory === 0 ? 'Sold out' : addToCartIcon}
+          </button>
+        </div>
+      `;
+    })}
+  `;
 }
 
-window.customElements.define('shop-products', ShopProducts);
+element('shop-products', ShopProducts, renderer(render), {
+  shadow: 'open'
+});

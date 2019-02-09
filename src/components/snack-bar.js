@@ -8,56 +8,48 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { LitElement, html, css } from 'lit-element';
+import { element, renderer } from 'swiss-element';
+import { html, render } from 'lit-html';
 
-class SnackBar extends LitElement {
-  static get properties() {
-    return {
-      active: { type: Boolean }
-    };
-  }
+function SnackBar() {
+  return html`
+    <style>
+      :host {
+        display: block;
+        position: fixed;
+        top: 100%;
+        left: 0;
+        right: 0;
+        padding: 12px;
+        background-color: black;
+        color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        will-change: transform;
+        transform: translate3d(0, 0, 0);
+        transition-property: visibility, transform;
+        transition-duration: 0.2s;
+        visibility: hidden;
+      }
 
-  static get styles() {
-    return [
-      css`
+      :host([active]) {
+        visibility: visible;
+        transform: translate3d(0, -100%, 0);
+      }
+
+      @media (min-width: 460px) {
         :host {
-          display: block;
-          position: fixed;
-          top: 100%;
-          left: 0;
-          right: 0;
-          padding: 12px;
-          background-color: black;
-          color: white;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-          text-align: center;
-          will-change: transform;
-          transform: translate3d(0, 0, 0);
-          transition-property: visibility, transform;
-          transition-duration: 0.2s;
-          visibility: hidden;
+          width: 320px;
+          margin: auto;
         }
+      }
+    </style>
 
-        :host([active]) {
-          visibility: visible;
-          transform: translate3d(0, -100%, 0);
-        }
-
-        @media (min-width: 460px) {
-          :host {
-            width: 320px;
-            margin: auto;
-          }
-        }
-      `
-    ];
-  }
-
-  render() {
-    return html`
-      <slot></slot>
-    `;
-  }
+    <slot></slot>
+  `;
 }
 
-window.customElements.define('snack-bar', SnackBar);
+element('snack-bar', SnackBar, renderer(render), {
+  observedAttributes: ['active'],
+  shadow: 'open'
+});

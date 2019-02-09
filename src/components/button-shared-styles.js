@@ -8,9 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { css } from 'lit-element';
-
-export const ButtonSharedStyles = css`
+export const ButtonSharedStyles = `
   button {
     font-size: inherit;
     vertical-align: middle;

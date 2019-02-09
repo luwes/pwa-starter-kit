@@ -8,18 +8,16 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { LitElement, html, css } from 'lit-element';
-import { connect } from 'pwa-helpers/connect-mixin.js';
-
-// This element is connected to the Redux store.
-import { store } from '../store.js';
+import { element, renderer } from 'swiss-element';
+import { useActions, useSelector } from 'swiss-redux';
+import { html, render } from 'lit-html';
 
 // These are the elements needed by this element.
 import { removeFromCartIcon } from './my-icons.js';
 import './shop-item.js';
 
 // These are the actions needed by this element.
-import { removeFromCart } from '../actions/shop.js';
+import * as actions from '../actions/shop.js';
 
 // These are the reducers needed by this element.
 import { cartItemsSelector, cartTotalSelector } from '../reducers/shop.js';
@@ -27,54 +25,48 @@ import { cartItemsSelector, cartTotalSelector } from '../reducers/shop.js';
 // These are the shared styles needed by this element.
 import { ButtonSharedStyles } from './button-shared-styles.js';
 
-class ShopCart extends connect(store)(LitElement) {
-  static get properties() {
-    return {
-      _items: { type: Array },
-      _total: { type: Number }
-    };
-  }
+function ShopCart() {
+  const items = useSelector(cartItemsSelector);
+  const total = useSelector(cartTotalSelector);
+  const { removeFromCart } = useActions(actions);
 
-  static get styles() {
-    return [
-      ButtonSharedStyles,
-      css`
-        :host {
-          display: block;
-        }
-      `
-    ];
-  }
+  const removeButtonClicked = e => {
+    removeFromCart(e.currentTarget.dataset['index']);
+  };
 
-  render() {
-    return html`
-      <p ?hidden="${this._items.length !== 0}">Please add some products to cart.</p>
-      ${this._items.map((item) =>
+  return html`
+    <style>
+      ${ButtonSharedStyles} :host {
+        display: block;
+      }
+    </style>
+    <p ?hidden="${items.length !== 0}">
+      Please add some products to cart.
+    </p>
+    ${items.map(
+      item =>
         html`
           <div>
-            <shop-item .name="${item.title}" .amount="${item.amount}" .price="${item.price}"></shop-item>
+            <shop-item
+              .name="${item.title}"
+              .amount="${item.amount}"
+              .price="${item.price}"
+            ></shop-item>
             <button
-                @click="${this._removeButtonClicked}"
-                data-index="${item.id}"
-                title="Remove from cart">
+              @click="${removeButtonClicked}"
+              data-index="${item.id}"
+              title="Remove from cart"
+            >
               ${removeFromCartIcon}
             </button>
           </div>
         `
-      )}
-      <p ?hidden="${!this._items.length}"><b>Total:</b> ${this._total}</p>
-    `;
-  }
-
-  _removeButtonClicked(e) {
-    store.dispatch(removeFromCart(e.currentTarget.dataset['index']));
-  }
-
-  // This is called every time something is updated in the store.
-  stateChanged(state) {
-    this._items = cartItemsSelector(state);
-    this._total = cartTotalSelector(state);
-  }
+    )}
+    <p ?hidden="${!items.length}"><b>Total:</b> ${total}</p>
+  `;
 }
 
-window.customElements.define('shop-cart', ShopCart);
+element('shop-cart', ShopCart, renderer(render), {
+  observedAttributes: [],
+  shadow: 'open'
+});

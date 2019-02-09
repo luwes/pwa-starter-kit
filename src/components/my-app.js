@@ -8,8 +8,10 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { LitElement, html, css } from 'lit-element';
-import { connect } from 'pwa-helpers/connect-mixin.js';
+import { element, renderer, useEffect } from 'swiss-element';
+import { context, useActions, useSelector } from 'swiss-redux';
+import { html, render } from 'lit-html';
+
 import { installMediaQueryWatcher } from 'pwa-helpers/media-query.js';
 import { installOfflineWatcher } from 'pwa-helpers/network.js';
 import { installRouter } from 'pwa-helpers/router.js';
@@ -17,140 +19,123 @@ import { updateMetadata } from 'pwa-helpers/metadata.js';
 
 // This element is connected to the Redux store.
 import { store } from '../store.js';
+context(store);
 
 // These are the actions needed by this element.
-import {
-  navigate,
-  updateOffline,
-  updateLayout
-} from '../actions/app.js';
+import * as actions from '../actions/app.js';
 
 // These are the elements needed by this element.
 import './snack-bar.js';
 
-class MyApp extends connect(store)(LitElement) {
-  static get properties() {
-    return {
-      appTitle: { type: String },
-      _page: { type: String },
-      _snackbarOpened: { type: Boolean },
-      _offline: { type: Boolean }
-    };
-  }
+function MyApp({ appTitle }) {
+  const page = useSelector(state => state.app.page);
+  const offline = useSelector(state => state.app.offline);
+  const snackbarOpened = useSelector(state => state.app.snackbarOpened);
 
-  static get styles() {
-    return [
-      css`
-        :host {
-          display: block;
-          padding: 24px;
-          max-width: 600px;
-        }
+  const { navigate, updateOffline, updateLayout } = useActions(actions);
 
+  useEffect(() => {
+    installRouter(location => navigate(decodeURIComponent(location.pathname)));
+    installOfflineWatcher(offline => updateOffline(offline));
+    installMediaQueryWatcher(`(min-width: 460px)`, matches =>
+      updateLayout(matches)
+    );
+  });
+
+  useEffect(() => {
+    const pageTitle = appTitle + ' - ' + page;
+    updateMetadata({
+      title: pageTitle,
+      description: pageTitle
+      // This object also takes an image property, that points to an img src.
+    });
+  }, [page]);
+
+  return html`
+    <style>
+      :host {
+        display: block;
+        padding: 24px;
+        max-width: 600px;
+      }
+
+      header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .toolbar-list > a {
+        display: inline-block;
+        color: black;
+        text-decoration: none;
+        padding: 0 8px;
+      }
+
+      .toolbar-list > a[selected] {
+        font-weight: bold;
+      }
+
+      /* Workaround for IE11 displaying <main> as inline */
+      main {
+        display: block;
+      }
+
+      .page {
+        display: none;
+      }
+
+      .page[active] {
+        display: block;
+      }
+
+      footer {
+        border-top: 1px solid #ccc;
+        text-align: center;
+      }
+
+      /* Wide layout */
+      @media (min-width: 460px) {
         header {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+          flex-direction: row;
         }
 
-        .toolbar-list > a {
-          display: inline-block;
-          color: black;
-          text-decoration: none;
-          padding: 0 8px;
+        /* The drawer button isn't shown in the wide layout, so we don't
+        need to offset the title */
+        [main-title] {
+          padding-right: 0px;
         }
+      }
+    </style>
 
-        .toolbar-list > a[selected] {
-          font-weight: bold;
-        }
+    <header>
+      <h1>${appTitle}</h1>
+      <nav class="toolbar-list">
+        <a ?selected="${page === 'view1'}" href="/view1">View One</a>|
+        <a ?selected="${page === 'view2'}" href="/view2">View Two</a>|
+        <a ?selected="${page === 'view3'}" href="/view3">View Three</a>
+      </nav>
+    </header>
 
-        /* Workaround for IE11 displaying <main> as inline */
-        main {
-          display: block;
-        }
+    <!-- Main content -->
+    <main role="main" class="main-content">
+      <my-view1 class="page" ?active="${page === 'view1'}"></my-view1>
+      <my-view2 class="page" ?active="${page === 'view2'}"></my-view2>
+      <my-view3 class="page" ?active="${page === 'view3'}"></my-view3>
+      <my-view404 class="page" ?active="${page === 'view404'}"></my-view404>
+    </main>
 
-        .page {
-          display: none;
-        }
+    <footer>
+      <p>Made with &hearts; by the Polymer team.</p>
+    </footer>
 
-        .page[active] {
-          display: block;
-        }
-
-        footer {
-          border-top: 1px solid #ccc;
-          text-align: center;
-        }
-
-        /* Wide layout */
-        @media (min-width: 460px) {
-          header {
-            flex-direction: row;
-          }
-
-          /* The drawer button isn't shown in the wide layout, so we don't
-          need to offset the title */
-          [main-title] {
-            padding-right: 0px;
-          }
-        }
-      `
-    ];
-  }
-
-  render() {
-    // Anything that's related to rendering should be done in here.
-    return html`
-      <header>
-        <h1>${this.appTitle}</h1>
-        <nav class="toolbar-list">
-          <a ?selected="${this._page === 'view1'}" href="/view1">View One</a>|
-          <a ?selected="${this._page === 'view2'}" href="/view2">View Two</a>|
-          <a ?selected="${this._page === 'view3'}" href="/view3">View Three</a>
-        </nav>
-      </header>
-
-      <!-- Main content -->
-      <main role="main" class="main-content">
-        <my-view1 class="page" ?active="${this._page === 'view1'}"></my-view1>
-        <my-view2 class="page" ?active="${this._page === 'view2'}"></my-view2>
-        <my-view3 class="page" ?active="${this._page === 'view3'}"></my-view3>
-        <my-view404 class="page" ?active="${this._page === 'view404'}"></my-view404>
-      </main>
-
-      <footer>
-        <p>Made with &hearts; by the Polymer team.</p>
-      </footer>
-
-      <snack-bar ?active="${this._snackbarOpened}">
-        You are now ${this._offline ? 'offline' : 'online'}.
-      </snack-bar>
-    `;
-  }
-
-  firstUpdated() {
-    installRouter((location) => store.dispatch(navigate(decodeURIComponent(location.pathname))));
-    installOfflineWatcher((offline) => store.dispatch(updateOffline(offline)));
-    installMediaQueryWatcher(`(min-width: 460px)`,
-        (matches) => store.dispatch(updateLayout(matches)));
-  }
-
-  updated(changedProps) {
-    if (changedProps.has('_page')) {
-      const pageTitle = this.appTitle + ' - ' + this._page;
-      updateMetadata({
-        title: pageTitle,
-        description: pageTitle
-        // This object also takes an image property, that points to an img src.
-      });
-    }
-  }
-
-  stateChanged(state) {
-    this._page = state.app.page;
-    this._offline = state.app.offline;
-    this._snackbarOpened = state.app.snackbarOpened;
-  }
+    <snack-bar ?active="${snackbarOpened}">
+      You are now ${offline ? 'offline' : 'online'}.
+    </snack-bar>
+  `;
 }
 
-window.customElements.define('my-app', MyApp);
+element('my-app', MyApp, renderer(render), {
+  observedAttributes: ['appTitle'],
+  shadow: 'open'
+});

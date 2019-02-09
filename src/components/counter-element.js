@@ -8,7 +8,8 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { LitElement, html, css } from 'lit-element';
+import { element, renderer, useState } from 'swiss-element';
+import { html, render } from 'lit-html';
 
 // These are the elements needed by this element.
 import { plusIcon, minusIcon } from './my-icons.js';
@@ -19,60 +20,46 @@ import { ButtonSharedStyles } from './button-shared-styles.js';
 // This is a reusable element. It is not connected to the store. You can
 // imagine that it could just as well be a third-party element that you
 // got from someone else.
-class CounterElement extends LitElement {
-  static get properties() {
-    return {
-      /* The total number of clicks you've done. */
-      clicks: { type: Number },
-      /* The current value of the counter. */
-      value: { type: Number }
-    }
-  }
 
-  static get styles() {
-    return [
-      ButtonSharedStyles,
-      css`
-        span {
-          width: 20px;
-          display: inline-block;
-          text-align: center;
-          font-weight: bold;
-        }
-      `
-    ];
-  }
+function CounterElement(el) {
+  const [clicks, setClicks] = useState(0);
+  const [value, setValue] = useState(0);
 
-  render() {
-    return html`
-      <div>
-        <p>
-          Clicked: <span>${this.clicks}</span> times.
-          Value is <span>${this.value}</span>.
-          <button @click="${this._onIncrement}" title="Add 1">${plusIcon}</button>
-          <button @click="${this._onDecrement}" title="Minus 1">${minusIcon}</button>
-        </p>
-      </div>
-    `;
-  }
+  const onIncrement = () => {
+    setValue(v => v + 1);
+    setClicks(c => c + 1);
+    el.dispatchEvent(new CustomEvent('counter-incremented'));
+  };
 
-  constructor() {
-    super();
-    this.clicks = 0;
-    this.value = 0;
-  }
+  const onDecrement = () => {
+    setValue(value - 1);
+    setClicks(clicks + 1);
+    el.dispatchEvent(new CustomEvent('counter-decremented'));
+  };
 
-  _onIncrement() {
-    this.value++;
-    this.clicks++;
-    this.dispatchEvent(new CustomEvent('counter-incremented'));
-  }
-
-  _onDecrement() {
-    this.value--;
-    this.clicks++;
-    this.dispatchEvent(new CustomEvent('counter-decremented'));
-  }
+  return html`
+    <style>
+      ${ButtonSharedStyles} span {
+        width: 20px;
+        display: inline-block;
+        text-align: center;
+        font-weight: bold;
+      }
+    </style>
+    <div>
+      <p>
+        Clicked: <span>${clicks}</span> times. Value is <span>${value}</span>.
+        <button @click="${onIncrement}" title="Add 1">
+          ${plusIcon}
+        </button>
+        <button @click="${onDecrement}" title="Minus 1">
+          ${minusIcon}
+        </button>
+      </p>
+    </div>
+  `;
 }
 
-window.customElements.define('counter-element', CounterElement);
+element('counter-element', CounterElement, renderer(render), {
+  shadow: 'open'
+});
