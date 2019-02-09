@@ -102,7 +102,7 @@ const cart = (state, action) => {
         return {
           ...state,
           [removeId]: quantity
-        }
+        };
       }
     case CHECKOUT_SUCCESS:
       return {};
@@ -134,7 +134,12 @@ export const cartItemsSelector = createSelector(
   (cart, products) => {
     return Object.keys(cart).map(id => {
       const item = products[id];
-      return {id: item.id, title: item.title, amount: cart[id], price: item.price};
+      return {
+        id: item.id,
+        title: item.title,
+        amount: cart[id],
+        price: item.price
+      };
     });
   }
 );

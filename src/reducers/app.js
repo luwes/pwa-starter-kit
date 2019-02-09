@@ -12,13 +12,13 @@ import {
   UPDATE_PAGE,
   UPDATE_OFFLINE,
   OPEN_SNACKBAR,
-  CLOSE_SNACKBAR,
+  CLOSE_SNACKBAR
 } from '../actions/app.js';
 
 const INITIAL_STATE = {
   page: '',
   offline: false,
-  snackbarOpened: false,
+  snackbarOpened: false
 };
 
 const app = (state = INITIAL_STATE, action) => {
