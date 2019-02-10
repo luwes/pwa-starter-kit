@@ -26,7 +26,7 @@ const loadPage = page => dispatch => {
   let pagePromise;
   switch (page) {
     case 'view1':
-      pagePromise = import('../components/my-view1.js').then(module => {
+      pagePromise = import('../components/my-view1.js').then(() => {
         // Put code in here that you want to run every time when
         // navigating to view1 after my-view1.js is loaded.
       });
@@ -76,6 +76,7 @@ export const updateOffline = offline => (dispatch, getState) => {
   });
 };
 
-export const updateLayout = wide => (dispatch, getState) => {
+export const updateLayout = wide => () => {
+  // eslint-disable-next-line
   console.log(`The window changed to a ${wide ? 'wide' : 'narrow'} layout`);
 };

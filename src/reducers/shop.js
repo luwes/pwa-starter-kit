@@ -53,12 +53,13 @@ const shop = (state = INITIAL_STATE, action) => {
 const products = (state, action) => {
   switch (action.type) {
     case ADD_TO_CART:
-    case REMOVE_FROM_CART:
+    case REMOVE_FROM_CART: {
       const productId = action.productId;
       return {
         ...state,
         [productId]: product(state[productId], action)
       };
+    }
     default:
       return state;
   }
@@ -83,13 +84,14 @@ const product = (state, action) => {
 
 const cart = (state, action) => {
   switch (action.type) {
-    case ADD_TO_CART:
+    case ADD_TO_CART: {
       const addId = action.productId;
       return {
         ...state,
         [addId]: (state[addId] || 0) + 1
       };
-    case REMOVE_FROM_CART:
+    }
+    case REMOVE_FROM_CART: {
       const removeId = action.productId;
       const quantity = (state[removeId] || 0) - 1;
       if (quantity <= 0) {
@@ -104,6 +106,7 @@ const cart = (state, action) => {
           [removeId]: quantity
         };
       }
+    }
     case CHECKOUT_SUCCESS:
       return {};
     default:
