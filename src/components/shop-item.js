@@ -8,8 +8,8 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { element, renderer } from 'swiss-element';
-import { html, render } from 'lit-html';
+import { html } from 'lit-html';
+import { baseElement } from './swiss-elements.js';
 
 // This element is *not* connected to the Redux store.
 function ShopItem({ name, amount, price }) {
@@ -21,7 +21,6 @@ function ShopItem({ name, amount, price }) {
   `;
 }
 
-element('shop-item', ShopItem, renderer(render), {
-  observedAttributes: ['name', 'amount', 'price'],
-  shadow: 'open'
+baseElement('shop-item', ShopItem, {
+  observedAttributes: ['name', 'amount', 'price']
 });

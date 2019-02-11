@@ -10,7 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 import { html } from 'lit-html';
 import { useActions, useSelector } from 'swiss-redux';
-import { pageViewElement } from './page-view-element.js';
+import { pageViewElement } from './swiss-elements.js';
 
 // This element is connected to the Redux store.
 import { store } from '../store.js';

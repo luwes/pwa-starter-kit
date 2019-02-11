@@ -8,9 +8,10 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { element, renderer, useEffect } from 'swiss-element';
+import { useEffect } from 'swiss-element';
 import { useActions, useSelector } from 'swiss-redux';
-import { html, render } from 'lit-html';
+import { html } from 'lit-html';
+import { baseElement } from './swiss-elements.js';
 
 // This element is connected to the Redux store.
 
@@ -65,6 +66,4 @@ function ShopProducts() {
   `;
 }
 
-element('shop-products', ShopProducts, renderer(render), {
-  shadow: 'open'
-});
+baseElement('shop-products', ShopProducts);

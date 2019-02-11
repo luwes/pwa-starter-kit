@@ -18,6 +18,7 @@ export const addToCartIcon = html`
     />
   </svg>
 `;
+
 export const removeFromCartIcon = html`
   <svg height="24" viewBox="0 0 24 24" width="24">
     <path
@@ -26,6 +27,7 @@ export const removeFromCartIcon = html`
     <path d="M0 0h24v24H0z" fill="none" />
   </svg>
 `;
+
 export const minusIcon = html`
   <svg height="24" viewBox="0 0 24 24" width="24">
     <path d="M0 0h24v24H0z" fill="none" />
@@ -34,6 +36,7 @@ export const minusIcon = html`
     />
   </svg>
 `;
+
 export const plusIcon = html`
   <svg height="24" viewBox="0 0 24 24" width="24">
     <path d="M0 0h24v24H0z" fill="none" />

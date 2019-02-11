@@ -8,9 +8,10 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { element, renderer, useEffect } from 'swiss-element';
+import { useEffect } from 'swiss-element';
 import { context, useActions, useSelector } from 'swiss-redux';
-import { html, render } from 'lit-html';
+import { html } from 'lit-html';
+import { baseElement } from './swiss-elements.js';
 
 import { installMediaQueryWatcher } from 'pwa-helpers/media-query.js';
 import { installOfflineWatcher } from 'pwa-helpers/network.js';
@@ -135,7 +136,6 @@ function MyApp({ appTitle }) {
   `;
 }
 
-element('my-app', MyApp, renderer(render), {
-  observedAttributes: ['appTitle'],
-  shadow: 'open'
+baseElement('my-app', MyApp, {
+  observedAttributes: ['appTitle']
 });

@@ -8,8 +8,8 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { element, renderer } from 'swiss-element';
-import { html, render } from 'lit-html';
+import { html } from 'lit-html';
+import { baseElement } from './swiss-elements.js';
 
 function SnackBar() {
   return html`
@@ -49,7 +49,6 @@ function SnackBar() {
   `;
 }
 
-element('snack-bar', SnackBar, renderer(render), {
+baseElement('snack-bar', SnackBar, {
   observedAttributes: ['active'],
-  shadow: 'open'
 });

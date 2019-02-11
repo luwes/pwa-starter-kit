@@ -9,7 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 
 import { html } from 'lit-html';
-import { pageViewElement } from './page-view-element.js';
+import { pageViewElement } from './swiss-elements.js';
 
 // These are the shared styles needed by this element.
 import { SharedStyles } from './shared-styles.js';
