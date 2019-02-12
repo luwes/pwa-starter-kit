@@ -50,5 +50,5 @@ function SnackBar() {
 }
 
 baseElement('snack-bar', SnackBar, {
-  observedAttributes: ['active'],
+  observedAttributes: ['active']
 });

@@ -1,4 +1,3 @@
-
 import { compose, element, renderer } from 'swiss-element';
 import { render } from 'lit-html';
 
