@@ -7,7 +7,6 @@
   "extraDependencies": [
     "manifest.json",
     "node_modules/@webcomponents/webcomponentsjs/**",
-    "node_modules/swiss-element/**",
     "push-manifest.json"
   ],
   "builds": [
