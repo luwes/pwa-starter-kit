@@ -8,7 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-import { useEffect } from 'swiss-element/hooks';
+import { useEffect } from 'swiss/hooks';
 import { context, useActions, useSelector } from 'swiss-redux';
 import { html } from 'lit-html';
 import { baseElement } from './swiss-elements.js';

@@ -1,4 +1,4 @@
-import { compose, element, renderer } from 'swiss-element';
+import { compose, element, renderer } from 'swiss';
 import { render } from 'lit-html';
 
 export function baseElement(name, component, options) {
